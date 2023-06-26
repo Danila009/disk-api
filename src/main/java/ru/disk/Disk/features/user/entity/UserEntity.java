@@ -3,9 +3,11 @@ package ru.disk.Disk.features.user.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.dto.RegisterDto;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity(name = "users")
@@ -29,6 +31,9 @@ public class UserEntity {
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<UserRole> roles;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    public Set<FolderEntity> folders;
 
     public UserEntity() {}
 

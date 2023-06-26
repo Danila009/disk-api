@@ -31,19 +31,19 @@ public class UserController {
 
     @PostMapping("login")
     @Operation(summary = "login user")
-    public JwtResponseDto login(@RequestBody JwtRequestDto dto) {
-        return userService.login(dto);
+    public ResponseEntity<JwtResponseDto> login(@RequestBody JwtRequestDto dto) {
+        return ResponseEntity.ok(userService.login(dto));
     }
 
     @PostMapping("token")
     @Operation(summary = "get new access token")
-    public JwtResponseDto getNewAccessToken(@RequestBody RefreshJwtRequestDto request) {
-        return userService.getAccessToken(request.getRefreshToken());
+    public ResponseEntity<JwtResponseDto> getNewAccessToken(@RequestBody RefreshJwtRequestDto request) {
+        return ResponseEntity.ok(userService.getAccessToken(request.getRefreshToken()));
     }
 
     @PostMapping("refresh")
     @Operation(summary = "get new refresh token")
-    public JwtResponseDto getNewRefreshToken(@RequestBody RefreshJwtRequestDto request) {
-        return userService.refresh(request.getRefreshToken());
+    public ResponseEntity<JwtResponseDto> getNewRefreshToken(@RequestBody RefreshJwtRequestDto request) {
+        return ResponseEntity.ok(userService.refresh(request.getRefreshToken()));
     }
 }
