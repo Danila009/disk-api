@@ -29,9 +29,10 @@ public class FileDto {
         this.dateUpdate = entity.getDateUpdate();
         this.isPublic = entity.getIsPublic();
         this.expansion = entity.getExpansion();
+        this.size = entity.getSize();
 
         this.user = new UserDto(entity.getUser());
 
-        this.url = BaseConstance.BASE_URL + "/file?patch=" + entity.getPath();
+        this.url = BaseConstance.BASE_URL + "/files/resource?patch=" + entity.getPath();
     }
 }

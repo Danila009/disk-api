@@ -3,10 +3,15 @@ package ru.disk.Disk.features.file.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.web.multipart.MultipartFile;
 import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.entity.UserEntity;
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 
 @Getter
@@ -46,4 +51,25 @@ public class FileEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     public FolderEntity folder = null;
+
+    public FileEntity() {
+
+    }
+
+    public FileEntity(
+            String path,
+            UserEntity user,
+            FolderEntity folder
+    ) throws IOException {
+        this.name = FilenameUtils.getName(path);
+        this.expansion = FilenameUtils.getExtension(path);
+        this.dateCreate = new Date();
+        this.dateUpdate = new Date();
+        this.isPublic = false;
+        this.user = user;
+        this.folder = folder;
+        this.path = path;
+
+        this.size = Math.toIntExact(Files.size(Path.of(path)));
+    }
 }

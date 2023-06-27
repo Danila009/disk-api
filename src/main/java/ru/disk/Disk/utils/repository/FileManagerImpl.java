@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class FileRepositoryImpl implements FileRepository {
+public class FileManagerImpl implements FileManager {
 
     @Override
     public ResponseEntity<Resource> get(String filePath) throws IOException {
