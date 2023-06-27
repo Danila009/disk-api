@@ -3,6 +3,7 @@ package ru.disk.Disk.features.folder.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import ru.disk.Disk.features.file.entity.FileEntity;
 import ru.disk.Disk.features.folder.dto.FolderDto;
 import ru.disk.Disk.features.user.entity.UserEntity;
 
@@ -42,6 +43,9 @@ public class FolderEntity {
     @OneToMany(mappedBy = "folder", fetch = FetchType.LAZY)
     public Set<FolderEntity> folders;
 
+    @OneToMany(mappedBy = "folder", fetch = FetchType.LAZY)
+    public Set<FileEntity> files;
+
     public FolderEntity() {
 
     }
@@ -52,5 +56,6 @@ public class FolderEntity {
         this.dateCreate = dto.getDateCreate();
         this.dateUpdate = dto.getDateUpdate();
         this.isPublic = dto.getIsPublic();
+        this.user = new UserEntity(dto.getUser());
     }
 }

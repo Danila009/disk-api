@@ -3,8 +3,10 @@ package ru.disk.Disk.features.user.entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import ru.disk.Disk.features.file.entity.FileEntity;
 import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.dto.RegisterDto;
+import ru.disk.Disk.features.user.dto.UserDto;
 
 import javax.persistence.*;
 import java.util.List;
@@ -35,6 +37,9 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     public Set<FolderEntity> folders;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    public Set<FileEntity> files;
+
     public UserEntity() {}
 
     public UserEntity(String email, String password) {
@@ -45,5 +50,11 @@ public class UserEntity {
     public UserEntity(RegisterDto dto) {
         this.email = dto.getEmail();
         this.password = dto.getPassword();
+    }
+
+    public UserEntity(UserDto dto) {
+        this.email = dto.getEmail();
+        this.roles = dto.getRoles();
+        this.id = dto.getId();
     }
 }
