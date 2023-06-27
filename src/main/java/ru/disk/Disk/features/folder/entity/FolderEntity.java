@@ -26,13 +26,13 @@ public class FolderEntity {
     public String name;
 
     @Column(nullable = false)
-    public Date dateUpdate;
+    public Date dateUpdate = new Date();
 
     @Column(nullable = false)
-    public Date dateCreate;
+    public Date dateCreate = new Date();
 
     @Column(nullable = false)
-    public Boolean isPublic;
+    public Boolean isPublic = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     public UserEntity user;
@@ -48,6 +48,12 @@ public class FolderEntity {
 
     public FolderEntity() {
 
+    }
+
+    public FolderEntity(String name, UserEntity user, FolderEntity folder) {
+        this.name = name;
+        this.user = user;
+        this.folder = folder;
     }
 
     public FolderEntity(FolderDto dto) {
