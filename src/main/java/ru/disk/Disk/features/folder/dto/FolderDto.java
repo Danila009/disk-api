@@ -13,7 +13,6 @@ public class FolderDto {
 
     public Long id;
     public String name;
-    public Integer size;
     public Date dateUpdate;
     public Date dateCreate;
     public Boolean isPublic;
@@ -27,7 +26,5 @@ public class FolderDto {
         this.isPublic = entity.getIsPublic();
 
         this.user = new UserDto(entity.getUser());
-
-        this.size = 0;
     }
 }

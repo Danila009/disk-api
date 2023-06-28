@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +51,30 @@ public class FolderController {
         JwtAuthentication user = userService.getAuthInfo(request);
 
         return ResponseEntity.ok(folderService.add(name, folderId, user.getId()));
+    }
+
+    @RequestMapping(value = "/size", method = RequestMethod.HEAD)
+    public ResponseEntity<String> getSize(
+            @RequestParam(name = "folder_id") Long folderId
+    ){
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.set("folder_size", folderService.getSize(folderId).toString());
+
+        return new ResponseEntity("success", responseHeaders, HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public void delete(
+            @RequestParam(name = "folder_id") Long folderId
+    ){
+        folderService.delete(folderId);
+    }
+
+    @PatchMapping("/public")
+    public ResponseEntity<FolderDto> updatePublic(
+            @RequestParam(name = "folder_id") Long folderId
+    ){
+        return ResponseEntity.ok(folderService.updatePublic(folderId));
     }
 }

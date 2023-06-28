@@ -36,7 +36,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     @SneakyThrows
-    public void register(RegisterDto dto) {
+    public JwtResponseDto register(RegisterDto dto) {
 
         if(userRepository.findByEmail(dto.getEmail()).isPresent()){
             throw new AlreadyExistException("user.email.already_exist");
@@ -51,6 +51,8 @@ public class UserService {
         entity.setRoles(roles);
 
         userRepository.save(entity);
+
+        return login(new JwtRequestDto(entity.getEmail(), entity.getPassword()));
     }
 
     @SneakyThrows

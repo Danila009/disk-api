@@ -2,6 +2,7 @@ package ru.disk.Disk.features.folder;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,11 @@ import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.UserRepository;
 import ru.disk.Disk.features.user.entity.UserEntity;
 import ru.disk.Disk.utils.exceptions.NotFoundException;
+import ru.disk.Disk.utils.repository.FileManager;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -23,6 +26,9 @@ public class FolderService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FileManager fileManager;
 
     public Page<FolderDto> getAll(
             Long folderId,
@@ -61,6 +67,54 @@ public class FolderService {
         if(user.isEmpty()) throw new NotFoundException("user not found");
 
         FolderEntity folderEntity = new FolderEntity(name, user.get(), folder);
+
+        return new FolderDto(folderRepository.save(folderEntity));
+    }
+
+    @SneakyThrows
+    public Long getSize(Long folderId) {
+        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+
+        if(optionalFolderEntity.isEmpty())
+            throw new NotFoundException("folder not found");
+
+        FolderEntity folderEntity = optionalFolderEntity.get();
+
+        return fileManager.getSizeFolder(
+                "/resources/users/" +
+                        folderEntity.getUser().getEmail() +
+                        "/" + folderEntity.getName() + "_" + folderEntity.getId()
+        );
+    }
+
+    @SneakyThrows
+    @Transient
+    public void delete(Long folderId) {
+        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+
+        if(optionalFolderEntity.isEmpty()) throw new NotFoundException("folder not found");
+
+        FolderEntity folderEntity = optionalFolderEntity.get();
+
+        folderRepository.delete(folderEntity);
+
+        fileManager.deleteFolder(
+                "/resources/users/" +
+                        folderEntity.getUser().getEmail() +
+                        "/" + folderEntity.getName() + "_" + folderEntity.getId()
+        );
+    }
+
+    @SneakyThrows
+    public FolderDto updatePublic(Long folderId) {
+        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+
+        if(optionalFolderEntity.isEmpty()) throw new NotFoundException("folder not found");
+
+        FolderEntity folderEntity = optionalFolderEntity.get();
+
+        folderEntity.setIsPublic(!folderEntity.getIsPublic());
+        folderEntity.setDateUpdate(new Date());
 
         return new FolderDto(folderRepository.save(folderEntity));
     }

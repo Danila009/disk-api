@@ -23,10 +23,8 @@ public class UserController {
 
     @PostMapping("register")
     @Operation(summary = "register user")
-    public ResponseEntity<String> register(@RequestBody RegisterDto dto) {
-        userService.register(dto);
-
-        return ResponseEntity.ok("success");
+    public ResponseEntity<JwtResponseDto> register(@RequestBody RegisterDto dto) {
+        return ResponseEntity.ok(userService.register(dto));
     }
 
     @PostMapping("login")

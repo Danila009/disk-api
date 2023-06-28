@@ -1,5 +1,7 @@
 package ru.disk.Disk.utils.repository;
 
+import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -14,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class FileManagerImpl implements FileManager {
@@ -72,5 +75,40 @@ public class FileManagerImpl implements FileManager {
         }catch (Exception ex){
             return false;
         }
+    }
+
+    @Override
+    public Boolean rename(String oldFilePath, String newFilePath) {
+        try {
+            File oldFile = new File(oldFilePath);
+            File newFile = new File(newFilePath);
+
+            if (newFile.exists())
+                throw new java.io.IOException("file exists");
+
+            return oldFile.renameTo(newFile);
+        }catch (Exception ex){
+            return false;
+        }
+    }
+
+    @Override
+    public Long getSizeFolder(String path) {
+        long length = 0;
+        File directory = new File(path);
+
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += getSizeFolder(file.getPath());
+        }
+        return length;
+    }
+
+    @SneakyThrows
+    @Override
+    public void deleteFolder(String path) {
+        FileUtils.deleteDirectory(new File(path));
     }
 }

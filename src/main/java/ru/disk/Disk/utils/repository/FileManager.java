@@ -16,4 +16,10 @@ public interface FileManager {
     List<String> upload(List<MultipartFile> files, String folderName) throws IOException;
 
     Boolean delete(String filePath);
+
+    Boolean rename(String oldFilePath, String newFilePath);
+
+    Long getSizeFolder(String path);
+
+    void deleteFolder(String path);
 }

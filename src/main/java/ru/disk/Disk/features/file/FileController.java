@@ -48,6 +48,44 @@ public class FileController {
         return ResponseEntity.ok(fileService.add(folderId, user.getId(), file));
     }
 
+    @PatchMapping("rename")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    public ResponseEntity<FileDto> rename(
+            @RequestParam(name = "file_id") Long fileId,
+            @RequestParam(name = "file_name") String fileName
+    ) {
+        return ResponseEntity.ok(fileService.rename(fileId, fileName));
+    }
+
+    @PatchMapping("folder")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    public ResponseEntity<FileDto> updateFolder(
+            @RequestParam(name = "file_id") Long fileId,
+            @RequestParam(name = "folder_id") Long folderId
+    ) {
+        return ResponseEntity.ok(fileService.updateFolder(fileId, folderId));
+    }
+
+    @PatchMapping("public")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    public ResponseEntity<FileDto> updatePublic(
+            @RequestParam(name = "file_id") Long fileId
+    ) {
+        return ResponseEntity.ok(fileService.updatePublic(fileId));
+    }
+
+    @DeleteMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    public void delete(
+            @RequestParam(name = "file_id") Long fileId
+    ) {
+        fileService.delete(fileId);
+    }
+
     @GetMapping("resource")
     public ResponseEntity<Resource> getFileResource(
             @RequestParam(name = "patch") String filePatch

@@ -3,6 +3,7 @@ package ru.disk.Disk.features.file;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import ru.disk.Disk.utils.repository.FileManager;
 import javax.annotation.Resources;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -57,6 +59,7 @@ public class FileService {
             MultipartFile file
     ){
         FolderEntity folder = null;
+        String folderName;
 
         if(folderId != null){
             Optional<FolderEntity> optionalFolder = folderRepository.findById(folderId);
@@ -65,6 +68,10 @@ public class FileService {
                 folder = optionalFolder.get();
             else
                 throw new NotFoundException("folder not found");
+
+            folderName = folder.getName() + "_" + folder.getId();
+        }else {
+            folderName = "main";
         }
 
         Optional<UserEntity> userOptional = userRepository.findById(userId);
@@ -73,11 +80,109 @@ public class FileService {
 
         UserEntity userEntity = userOptional.get();
 
-        String patch = fileManager.upload(file, "/resources/users/" + userEntity.getEmail() + "/files/");
+        String patch = fileManager.upload(file, "/resources/users/" + userEntity.getEmail() + "/" + folderName + "/");
 
         FileEntity fileEntity = new FileEntity(patch, userEntity, folder);
 
         return new FileDto(fileRepository.save(fileEntity));
+    }
+
+    @SneakyThrows
+    @Transient
+    public FileDto rename(Long fileId, String name) {
+        Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
+
+        if(optionalFileEntity.isEmpty())
+            throw new NotFoundException("file not found");
+
+        FileEntity fileEntity = optionalFileEntity.get();
+        String folderName;
+
+        if(fileEntity.getFolder() == null)
+            folderName = "main";
+        else
+            folderName = fileEntity.getFolder().getName() + "_" + fileEntity.getFolder().getId();
+
+        String newPatch = "/resources/users/" +
+                fileEntity.getUser().getEmail() +
+                "/" + folderName + "/" + name + "." +
+                fileEntity.getExpansion();
+
+        fileEntity.setName(name);
+        fileEntity.setDateUpdate(new Date());
+        fileEntity.setPath(newPatch);
+
+        FileDto fileDto =  new FileDto(fileRepository.save(fileEntity));
+
+        fileManager.rename(
+                fileEntity.path,
+                newPatch
+        );
+
+        return fileDto;
+    }
+
+    @SneakyThrows
+    @Transient
+    public FileDto updateFolder(Long fileId, Long folderId) {
+        Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
+
+        if(optionalFileEntity.isEmpty()) throw new NotFoundException("file not found");
+
+        FileEntity fileEntity = optionalFileEntity.get();
+
+        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+
+        if(optionalFolderEntity.isEmpty()) throw new NotFoundException("file not found");
+
+        FolderEntity folderEntity = optionalFolderEntity.get();
+
+        String newPath = "/resources/users/" +
+                fileEntity.getUser().getEmail() +
+                "/" + folderEntity.getName() + "_" + folderEntity.getId() + "/" + fileEntity.getName() + "." +
+                fileEntity.getExpansion();
+
+        fileEntity.setFolder(folderEntity);
+        fileEntity.setDateUpdate(new Date());
+        fileEntity.setPath(newPath);
+
+        FileDto fileDto = new FileDto(fileRepository.save(fileEntity));
+
+        fileManager.rename(
+                fileEntity.path,
+                newPath
+        );
+
+        return fileDto;
+    }
+
+    @SneakyThrows
+    public FileDto updatePublic(Long fileId) {
+        Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
+
+        if(optionalFileEntity.isEmpty()) throw new NotFoundException("file not found");
+
+        FileEntity fileEntity = optionalFileEntity.get();
+
+        fileEntity.setIsPublic(!fileEntity.getIsPublic());
+        fileEntity.setDateUpdate(new Date());
+
+        return new FileDto(fileRepository.save(fileEntity));
+    }
+
+    @SneakyThrows
+    @Transient
+    public void delete(Long fileId) {
+        Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
+
+        if(optionalFileEntity.isEmpty())
+            throw new NotFoundException("file not found");
+
+        FileEntity fileEntity = optionalFileEntity.get();
+
+        fileRepository.delete(fileEntity);
+
+        fileManager.delete(fileEntity.getPath());
     }
 
     @SneakyThrows
